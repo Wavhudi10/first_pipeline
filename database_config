@@ -1,0 +1,33 @@
+import os
+import csv
+
+from psycopg_pool import ConnectionPool
+from dotenv import load_dotenv
+
+load_dotenv()
+
+pool = ConnectionPool (
+    conninfo= f"""
+                    host =localhost
+                    dbname ={os.getenv("POSTGRES_DB")}
+                    user ={os.getenv("POSTGRES_USER")}
+                    password ={os.getenv("POSTGRES_PASSWORD")}
+                """,
+    min_size= 1,
+    max_size= 10, # maximum 10 connections
+    max_idle= 30000, # 30 secs
+    max_waiting= 10000 # wait the maximum of 10 secs
+)
+
+with pool.connection() as conn:
+    print("Connetion successfully aquired!!")
+    with conn.cursor() as cur:
+        
+        cur.execute("SELECT * FROM users1 WHERE id > 20")
+        rows = cur.fetchall()
+
+        for row in rows:
+            print(row)
+
+
+pool.close()
